@@ -1,19 +1,28 @@
 const mongoose = require('mongoose');
 const Models = require('./models.js');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-const Movies = Models.Movie;
-const Users = Models.User;
+const { Movie, User } = Models; // Destructuring assignment for better readability
 
-mongoose.connect('mongodb://localhost:8081/moviedb', { useNewUrlParser: true, useUnifiedTopology: true });
+const connectOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 
-const express = require('express'),
-  bodyParser = require('body-parser'),
-  uuid = require('uuid');
+mongoose.connect('mongodb://localhost:8081/moviedb', connectOptions)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error.message);
+  });
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 let auth = require('./auth')(app);
 const passport = require('passport');
