@@ -19,44 +19,6 @@ let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
 
-// Array for Movies
-let movies = [
-  {
-    id: 1,
-    title: 'Movie 1',
-    description: 'Description of Movie 1',
-    genre: 'Genre 1',
-    director: 'Director 1',
-    imageUrl: 'URL 1',
-    featured: true,
-  },
-  {
-    id: 2,
-    title: 'Movie 2',
-    description: 'Description of Movie 2',
-    genre: 'Genre 2',
-    director: 'Director 2',
-    imageUrl: 'URL 2',
-    featured: false,
-  },
-  // Add more movie objects as needed
-];
-
-// Array for Users
-let users = [
-  {
-    id: 1,
-    email: 'user1@example.com',
-    favorites: [1, 3], // Movie IDs of their favorite movies
-  },
-  {
-    id: 2,
-    email: 'user2@example.com',
-    favorites: [2, 4],
-  },
-  // Add more user objects as needed
-];
-
 
 // Gets the list of all movies
 
