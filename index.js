@@ -31,7 +31,7 @@ require('./passport');
 
 // Gets the list of all movies
 
-app.get('/movies', async (req, res) => {
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movie.find()
     .then((movie) => {
       res.status(201).json(movie);
