@@ -10,7 +10,7 @@ const connectOptions = {
   useUnifiedTopology: true,
 };
 
-mongoose.connect('mongodb://localhost:8081/moviedb', connectOptions)
+mongoose.connect('mongodb://localhost:27017/moviedb', connectOptions)
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -31,10 +31,10 @@ require('./passport');
 
 // Gets the list of all movies
 
-app.get('/movies', passport.authenticate('jwt', {session: false }), async (req, res) => {
+app.get('/movies', async (req, res) => {
   await Movie.find()
-    .then((movies) => {
-      res.status(201).json(movies);
+    .then((movie) => {
+      res.status(201).json(movie);
     })
     .catch((error) => {
       console.error(error);
