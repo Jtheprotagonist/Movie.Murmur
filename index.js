@@ -55,9 +55,9 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }), (req
 
 
 app.get('/users', passport.authenticate('jwt', { session: false }), function (req, res) {
-  Users.find()
-    .then(function (users) {
-      res.status(200).json(users);
+  User.find()
+    .then(function (user) {
+      res.status(200).json(user);
     })
     .catch(function (err) {
       console.error(err);
@@ -78,7 +78,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }), function (re
   Birthday: Date
 }*/
 app.post('/users', async (req, res) => {
-  await Users.findOne({ Username: req.body.Username })
+  await User.findOne({ Username: req.body.Username })
     .then((user) => {
       if (user) {
         return res.status(400).send(req.body.Username + 'already exists');
@@ -106,7 +106,7 @@ app.post('/users', async (req, res) => {
 // Get a user by username
 app.get('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    const user = await Users.findOne({ Username: req.params.Username });
+    const user = await User.findOne({ Username: req.params.Username });
     if (user) {
       res.json(user);
     } else {
@@ -132,7 +132,7 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), as
 }*/
 app.put('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    const updatedUser = await Users.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { Username: req.params.Username },
       {
         $set: {
@@ -160,7 +160,7 @@ app.put('/users/:Username', passport.authenticate('jwt', { session: false }), as
 // Add a movie to a user's list of favorites
 app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-    const updatedUser = await Users.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { Username: req.params.Username },
       {
         $push: { FavoriteMovies: req.params.MovieID }
