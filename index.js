@@ -83,7 +83,7 @@ app.post('/users', async (req, res) => {
       if (user) {
         return res.status(400).send(req.body.Username + 'already exists');
       } else {
-        Users
+        User
           .create({
             Username: req.body.Username,
             Password: req.body.Password,
@@ -131,29 +131,28 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), as
   Birthday: Date
 }*/
 app.put('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const updatedUser = await User.findOneAndUpdate(
-      { Username: req.params.Username },
+  // CONDITION TO CHECK ADDED HERE
+  if(req.user.Username !== req.params.Username){
+      return res.status(400).send('Permission denied');
+  }
+  // CONDITION ENDS
+  await Users.findOneAndUpdate({ Username: req.params.Username }, {
+      $set:
       {
-        $set: {
           Username: req.body.Username,
           Password: req.body.Password,
           Email: req.body.Email,
           Birthday: req.body.Birthday
-        }
-      },
-      { new: true }
-    );
-
-    if (updatedUser) {
-      res.json(updatedUser);
-    } else {
-      res.status(404).send('User not found.');
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
-  }
+      }
+  },
+      { new: true }) // This line makes sure that the updated document is returned
+      .then((updatedUser) => {
+          res.json(updatedUser);
+      })
+      .catch((err) => {
+          console.log(err);
+          res.status(500).send('Error: ' + err);
+      })
 });
 
 

@@ -3,7 +3,7 @@ const passport = require('passport'),
   Models = require('./models.js'),
   passportJWT = require('passport-jwt');
 
-const Users = Models.User,
+let Users = Models.User,
   JWTStrategy = passportJWT.Strategy,
   ExtractJWT = passportJWT.ExtractJwt;
 
@@ -13,46 +13,39 @@ passport.use(
       usernameField: 'Username',
       passwordField: 'Password',
     },
-    (username, password, callback) => {
-      Users.findOne({ Username: username })
+    async (username, password, callback) => {
+      console.log(`${username} ${password}`);
+      await Users.findOne({ Username: username })
         .then((user) => {
           if (!user) {
-            console.log("incorrect username");
+            console.log('incorrect username');
             return callback(null, false, {
-              message: "Incorrect username or password.",
+              message: 'Incorrect username or password.',
             });
           }
-
-          if (!user.validatePassword(password)) {
-            console.log("incorrect password");
-            return callback(null, false, { message: "Incorrect password." });
-          }
-
-          console.log("finished");
-          return callback(null, user);
-        })
-        .catch((e) => {
-          console.error(e);
-          return callback(e); // Fix: Change 'error' to 'e'
-        });
-    }
-  )
-);
-
-passport.use(
-  new JWTStrategy(
-    {
-      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'your_jwt_secret',
-    },
-    async (jwtPayload, callback) => {
-      return await Users.findById(jwtPayload._id)
-        .then((user) => {
+          console.log('finished');
           return callback(null, user);
         })
         .catch((error) => {
-          return callback(error);
-        });
+          if (error) {
+            console.log(error);
+            return callback(error);
+          }
+        })
     }
   )
 );
+
+
+passport.use(new JWTStrategy({
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  secretOrKey: 'your_jwt_secret'
+}, async (jwtPayload, callback) => {
+  return await Users.findById(jwtPayload._id)
+    .then((user) => {
+      return callback(null, user);
+    })
+    .catch((error) => {
+      return callback(error)
+    });
+}));
