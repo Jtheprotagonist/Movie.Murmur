@@ -159,11 +159,15 @@ app.put('/users/:Username', passport.authenticate('jwt', { session: false }), as
 // Add a movie to a user's list of favorites
 app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
+    const { Username, MovieID } = req.body;
+
+    if (!Username || !MovieID) {
+      return res.status(400).send('Username and MovieID must be provided in the request body.');
+    }
+
     const updatedUser = await User.findOneAndUpdate(
-      { Username: req.params.Username },
-      {
-        $push: { FavoriteMovies: req.params.MovieID }
-      },
+      { Username: Username },
+      { $push: { FavoriteMovies: MovieID } },
       { new: true }
     );
 
@@ -177,6 +181,7 @@ app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { sess
     res.status(500).send('Error: ' + err);
   }
 });
+
 
 
 // Delete a user by username
