@@ -37,14 +37,13 @@ app.get('/', (req, res) => {
 
 // applies the jwt authentication to every route, except register 
 app.get('/movies', async (req, res) => {
-  await Movies.find()
-      .then((movies) => {
-          res.status(201).json(movies);
-      })
-      .catch((err) => {
-          console.error(err);
-          res.status(400).send('An Error occurred: ' + err);
-      })
+  try {
+    const movies = await Movies.find();
+    res.json(movies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // Add a user
