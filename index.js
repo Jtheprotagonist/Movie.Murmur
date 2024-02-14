@@ -35,8 +35,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the best movie search app ever!(Maybe😁)');
 });
 
-// applies the jwt authentication to every route, except register 
-app.get('/movies', async (req, res) => {
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies.find();
     res.json(movies);
