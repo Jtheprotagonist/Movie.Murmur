@@ -15,10 +15,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Configure CORS to allow requests from http://localhost:1234
-app.use(cors({
-    origin: 'http://localhost:1234'
-}));
+app.use(cors())
 
 // Define routes
 app.get('/', (req, res) => {
