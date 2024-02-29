@@ -5,7 +5,10 @@ const cors = require('cors');
 const Models = require('./models.js');
 const { Movie } = Models;
 
-mongoose.connect(process.env.CONNECTION_URI, {
+// Replace <password> with your actual password
+const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -15,11 +18,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors())
+app.use(cors());
 
 // Define routes
 app.get('/', (req, res) => {
-    res.send('Welcome to the best movie search app ever!(Maybe😁)');
+    res.send('Welcome to the best movie search app ever! (Maybe😁)');
 });
 
 app.get('/movies', async (req, res) => {
