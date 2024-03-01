@@ -8,10 +8,7 @@ const { Movie } = Models;
 // Replace <password> with your actual password
 const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+mongoose.connect(mongoURI);
 
 const app = express();
 
