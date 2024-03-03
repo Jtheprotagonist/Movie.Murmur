@@ -5,10 +5,12 @@ const cors = require('cors');
 const Models = require('./models.js');
 const { Movie } = Models;
 
-// Replace <password> with your actual password
 const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-mongoose.connect(mongoURI);
+// Connect to MongoDB with error handling
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const app = express();
 
@@ -17,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors({
     origin: 'http://localhost:63239'
-  }));
+}));
 
 // Define routes
 app.get('/', (req, res) => {
@@ -27,6 +29,7 @@ app.get('/', (req, res) => {
 app.get('/movies', async (req, res) => {
     try {
         const movies = await Movie.find();
+        console.log('Fetched movies:', movies); // Logging fetched movies
         res.json(movies);
     } catch (err) {
         console.error(err);
