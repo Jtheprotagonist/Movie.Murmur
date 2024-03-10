@@ -5,7 +5,7 @@ const cors = require('cors');
 const Models = require('./models.js');
 const { Movie } = Models;
 
-const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/myflixDB2?retryWrites=true&w=majority&appName=Cluster0';
 
 // Connect to MongoDB with error handling
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
