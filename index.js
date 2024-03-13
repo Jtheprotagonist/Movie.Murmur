@@ -15,15 +15,12 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors({
-    origin: 'http://localhost:63239'
-}));
+app.use(cors())
 
 // Define routes
 app.get('/', (req, res) => {
-    res.send('Welcome to the best movie search app ever! (Maybe😁)');
+    res.send('Welcome Movie Murmur! Grab some popcorn!');
 });
 
 app.get('/movies', async (req, res) => {
