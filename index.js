@@ -36,7 +36,7 @@ app.get('/movies', async (req, res) => {
 
 // Add more routes as needed
 
-const port = process.env.PORT || 8080; // Change this to a different port if 8080 is already in use
-app.listen(port, '0.0.0.0', () => {
-    console.log('Listening on Port ' + port);
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',() => {
+ console.log('Listening on Port ' + port);
 });
