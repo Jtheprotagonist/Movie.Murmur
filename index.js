@@ -11,12 +11,40 @@ const saltRounds = 10;
 
 mongoose.connect(process.env.CONNECTION_URI, {
    useNewUrlParser: true,
-   useUnifiedTopology: true,
-})
+   useUnifiedTopology: true, // Added comma here
+});
 
-const app = express();
+const app = express(); // Moved express initialization here
 
 app.use(bodyParser.json());
+app.use(cors());
+
+// Connect to MongoDB
+mongoose.connect(process.env.CONNECTION_URI || 'mongodb://localhost:27017/myflixdatabase', {
+   useNewUrlParser: true,
+   useUnifiedTopology: true,
+   useFindAndModify: false,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Define routes
+app.get('/', (req, res) => {
+    res.send('Welcome Movie Murmur! Grab some popcorn!');
+});
+
+app.get('/movies', async (req, res) => {
+    try {
+        const movies = await Movie.find();
+        console.log('Fetched movies:', movies); // Logging fetched movies
+        res.json(movies);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}); // Added closing parenthesis here
+
+// Use bodyParser.urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const cors = require('cors');
@@ -54,8 +82,8 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), async (req,
       .catch((err) => {
           console.error(err);
           res.status(500).send('An Error occurred: ' + err);
-      })
-});
+      });
+}); // Added closing parenthesis here
 
 // Add a user
 app.post('/users',
@@ -172,32 +200,8 @@ app.put('/users/:Username', passport.authenticate('jwt', { session: false }), [
   })
   .catch((err) => {
     console.log(err);
-    res.status(500).send('Error: ' + err);
+    res.status(500).send('Internal Server Error');
   });
-});
-
-
-
-
-// Add a movie to a user's list of favorites
-app.put('/users/:Username/movies/add/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if (req.user.Username !== req.params.Username) {
-      return res.status(400).send('Permission denied!')
-  }
-
-  await Users.findOneAndUpdate({ Username: req.params.Username },
-      { $push: { FavoriteMovies: req.params.MovieID } },
-      { new: true })
-      .then((updatedUser) => {
-          res.status(201).send('Successfully added the movie to the favorite List!\n' + JSON.stringify({
-              Username: updatedUser.Username,
-              FavoriteMovies: updatedUser.FavoriteMovies,
-          }, null, 2));
-      })
-      .catch((err) => {
-          console.error(err);
-          res.status(400).send('Couldn\t add movie to favorites List-Err: ' + err);
-      })
 });
 
 // Delete a user by username
@@ -221,7 +225,3 @@ const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
  console.log('Listening on Port ' + port);
 });
-
-
-
-
