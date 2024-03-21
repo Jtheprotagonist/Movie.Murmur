@@ -1,37 +1,60 @@
-const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 const Models = require('./models.js');
-const { Movie } = Models;
+const express = require('express');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const { Movie, User, Users } = Models;
+const Movies = Models.Movie;
+const { check, validationResult } = require('express-validator');
+const config = require('./config');
+const saltRounds = 10;
 
-const mongoURI = 'mongodb+srv://User1:Oxonhill15@cluster0.dlxbnnp.mongodb.net/myflixdatabase?retryWrites=true&w=majority&appName=Cluster0';
-
-// Connect to MongoDB with error handling
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.CONNECTION_URI, {
+   useNewUrlParser: true,
+   useUnifiedTopology: true,
+})
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors())
+const cors = require('cors');
+app.use(cors());
 
-// Define routes
-app.get('/', (req, res) => {
-    res.send('Welcome Movie Murmur! Grab some popcorn!');
-});
+let auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport');
 
-app.get('/movies', async (req, res) => {
-    try {
-        const movies = await Movie.find();
-        console.log('Fetched movies:', movies); // Logging fetched movies
-        res.json(movies);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+// Import dependencies for JWT authentication
+const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt');
+
+// Configure Passport to use JWT authentication
+passport.use(new JWTStrategy({
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.secret,
+}, (jwtPayload, done) => {
+  Users.findById(jwtPayload._id)
+    .then(user => {
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    })
+    .catch(err => done(err, false));
+}));
+
+// Protected movies endpoint using Passport authentication middleware
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  await Movies.find()
+      .then((movies) => {
+          res.status(200).json(movies);
+      })
+      .catch((err) => {
+          console.error(err);
+          res.status(500).send('An Error occurred: ' + err);
+      })
 });
 
 // Add more routes as needed
