@@ -1,53 +1,90 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const { check, validationResult } = require('express-validator');
-const Models = require('./models.js');
-const config = require('./config');
-const { Movie, User } = Models;
+import React, { useState, useEffect } from "react";
+import { MovieCard } from "../movie-card/movie-card";
+import MovieView from "../movie-view/movie-view";
+import SignupView from "../signup-view/signup-view";
+import LoginView from "../login-view/login-view"; // Import LoginView component
 
-const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const MainView = () => {
+  const [movies, setMovies] = useState([]); // State variable to store movies
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null); // State variable to store user
+  const [isLoading, setIsLoading] = useState(true); // State variable for loading state
 
-// MongoDB connection
-mongoose.connect(process.env.CONNECTION_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+  useEffect(() => {
+    fetch('https://movie-murmer-2015-5d256703e312.herokuapp.com/movies')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Unauthorized');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setMovies(data);
+        setIsLoading(false); // Set loading state to false after fetching movies
+      })
+      .catch((error) => {
+        setIsLoading(false); // Set loading state to false if there's an error
+        // Handle the error, e.g., display a message to the user
+      });
+  }, []);
 
-// Movies endpoint
-app.get('/movies', async (req, res) => {
-    try {
-        const movies = await Movie.find();
-        res.status(200).json(movies);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('An Error occurred: ' + err);
-    }
-});
+  const handleLogout = () => {
+    // Perform logout logic here
+    // Example: Clear authentication token, reset user session, etc.
+  };
 
-// Login endpoint
-app.post('/login', [
-    check('username', 'Username is required').notEmpty(),
-    check('password', 'Password is required').notEmpty()
-], async (req, res) => {
-    // Code for login endpoint
-});
+  const handleCardClick = (clickedMovie) => {
+    setSelectedMovie(clickedMovie);
+  };
 
-// Signup endpoint
-app.post('/signup', [
-    check('username', 'Username is required').notEmpty(),
-    check('password', 'Password is required').notEmpty()
-], async (req, res) => {
-    // Code for signup endpoint
-});
+  const handleBackButtonClick = () => {
+    setSelectedMovie(null);
+  };
 
-// Other endpoints...
+  if (selectedMovie) {
+    return <MovieView onBackButtonClick={handleBackButtonClick} movie={selectedMovie} />;
+  }
 
-const port = process.env.PORT || 8080;
-app.listen(port, '0.0.0.0', () => {
-    console.log('Listening on Port ' + port);
-});
+  // Render loading message if movies are still being fetched
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // Render movie cards if movies are available
+  if (movies.length > 0) {
+    return (
+      <div>
+        {/* Logout button */}
+        <button onClick={() => { setUser(null); setToken(null); localStorage.clear(); }}>Logout</button>
+  
+        {movies.map((movie) => (
+          <MovieCard
+            key={movie._id} // Assuming the id property is named "_id", adjust if necessary
+            movie={{...movie, id: movie._id}} // Ensure that the "id" property is included in the movie object
+            onCardClick={handleCardClick}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Render login or signup view if user is not logged in
+  if (!user) {
+    return (
+      <>
+        <LoginView onLoggedIn={(user, token) => {
+          setUser(user);
+          setToken(token);
+        }} />
+        or
+        <SignupView />
+      </>
+    );
+  }
+
+  // If none of the above conditions are met, render default message
+  return <div>The list is empty!</div>;
+};
+
+export default MainView;
